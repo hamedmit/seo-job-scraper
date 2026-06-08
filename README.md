@@ -1,524 +1,206 @@
-<div dir="rtl">
+# 🤖 SEO Job Scraper Bot
 
-# 🤖 ربات تلگرامی جستجوی شغل سئو
-
-> یه ربات رایگان که هر روز صبح آگهی‌های شغلی سئو رو از سایت‌هایی مثل LinkedIn، Indeed، Glassdoor و بقیه جمع‌آوری میکنه و مستقیم برات توی تلگرام میفرسته.
-
-**نیازی به سرور یا هزینه‌ای نیست** — همه چیز روی GitHub Actions رایگان اجرا میشه.
+ربات اتوماتیک جستجوی شغل SEO ریموت — هر ۶ ساعت آگهی‌های جدید رو پیدا می‌کنه و به تلگرام می‌فرسته.
 
 ---
 
-## ✨ امکانات
+## ✨ قابلیت‌ها
 
-- 🔍 جستجوی روزانه خودکار در تمام سایت‌های شغلی بزرگ دنیا
-- 📱 ارسال مستقیم به تلگرام شخصی یا گروهت
-- ⛔ فیلتر هوشمند آگهی‌های نامناسب (Senior، US only، Agency و غیره)
-- 💰 نمایش حقوق اگر در آگهی ذکر شده باشد
-- 🔁 جلوگیری از ارسال تکراری آگهی‌های قبلی
-- 📊 آرشیو اختیاری در Google Sheets
-
----
-
-## 📋 چی نیاز داری؟
-
-فقط **۳ چیز** لازم داری — همه رایگان:
-
-| ابزار | چیه؟ | رایگانه؟ |
-|---|---|---|
-| اکانت GitHub | جایی که کد ربات ذخیره و اجرا میشه | ✅ کاملاً رایگان |
-| اکانت RapidAPI (JSearch) | سرویسی که آگهی‌های شغلی رو میکشه | ✅ ۲۰۰ درخواست رایگان در ماه |
-| ربات تلگرام | ربات شخصی‌ات که پیام میفرسته | ✅ کاملاً رایگان |
+- 🔍 جستجو از **۶+ منبع رایگان** (Remotive, Jobicy, Arbeitnow, Adzuna, FindWork, CF Worker)
+- 🧠 تولید **Cover Letter با هوش مصنوعی** (Gemini/OpenAI) + لینک خواندنی
+- 📊 **امتیازدهی هوشمند** بر اساس مهارت‌ها و کلمات کلیدی
+- ⛔ **فیلتر خودکار** آگهی‌های نامرتبط (سنیور، آژانس، محدود به آمریکا...)
+- 📋 ذخیره در **Google Sheets** (اختیاری)
+- ⏰ اجرای خودکار با **GitHub Actions** (رایگان)
 
 ---
 
-## 🚀 راه‌اندازی گام به گام
+## 🚀 راه‌اندازی قدم‌به‌قدم (مبتدی‌پسند)
 
-### 🟢 گام ۱ — Fork کردن این پروژه در GitHub
+### مرحله ۱: ساخت ربات تلگرام (۲ دقیقه)
 
-**Fork یعنی چی؟**
-وقتی یه پروژه رو Fork میکنی، GitHub یه **کپی کامل** از اون پروژه توی اکانت خودت میسازه. این کپی کاملاً مال خودته و میتونی هر تغییری بدی بدون اینکه پروژه اصلی تغییر کنه.
+1. تلگرام رو باز کن
+2. `@BotFather` رو سرچ کن و بهش پیام بده
+3. بنویس: `/newbot`
+4. یه اسم بده (مثلاً: `My SEO Job Bot`)
+5. یه username بده (مثلاً: `my_seo_jobs_bot`)
+6. BotFather یه **Token** بهت میده — کپی کن (شبیه اینه: `123456:ABC-DEF...`)
 
-**چرا Fork میکنیم؟**
-چون میخوایم ربات روی GitHub Actions **اکانت خودت** اجرا بشه، نه اکانت کس دیگه‌ای.
+### مرحله ۲: پیدا کردن Chat ID (۱ دقیقه)
 
----
+1. به ربات `@userinfobot` تو تلگرام پیام بده
+2. عدد **Id** که نشون میده رو کپی کن (مثلاً: `123456789`)
 
-**مراحل Fork کردن:**
+### مرحله ۳: آپلود پروژه به GitHub (۵ دقیقه)
 
-**مرحله ۱.۱** — بالای همین صفحه، دکمه **Fork** رو پیدا کن:
+> GitHub یه سایته که کد رو ذخیره می‌کنه و می‌تونه بصورت خودکار اجراش کنه (رایگان).
 
-```
-📍 محل دکمه Fork: بالا سمت راست صفحه — کنار دکمه‌های Star و Watch
-```
+1. اگه اکانت GitHub نداری → برو به [github.com](https://github.com) و ثبت‌نام کن
+2. بعد لاگین، روی دکمه **+** (بالا سمت راست) بزن → **New repository**
+3. اسم: `seo-job-scraper` | نوع: **Private** | بزن **Create repository**
+4. فایل‌های زیر رو آپلود کن (دکمه "uploading an existing file"):
+   - `bot.py`
+   - `requirements.txt`
+   - `.github/workflows/run.yml`
+   - `cf_worker.js` (اختیاری — فقط اگه Cloudflare Worker می‌خوای)
 
-![Fork button location](https://docs.github.com/assets/cb-40142/mw-1440/images/help/repository/fork-button.webp)
+### مرحله ۴: تنظیم Secrets (متغیرهای محرمانه) — ۳ دقیقه
 
-**مرحله ۱.۲** — بعد از کلیک روی Fork، یه صفحه جدید باز میشه:
+> Secrets جایی هستن که Token و کلیدها رو امن ذخیره می‌کنی.
 
-```
-✏️  Repository name: میتونی اسم رو عوض کنی یا همونطور بذاری
-📝  Description: اختیاریه
-☑️  Copy the main branch only: تیکش بزن
-```
+1. تو ریپازیتوری GitHub، برو به **Settings** (تب بالا)
+2. منوی چپ: **Secrets and variables** → **Actions**
+3. دکمه **New repository secret** رو بزن
+4. این دو تا رو **حتماً** اضافه کن:
 
-**مرحله ۱.۳** — روی دکمه سبز **Create fork** کلیک کن
+| Name | Value | توضیح |
+|------|-------|-------|
+| `TELEGRAM_BOT_TOKEN` | Token از BotFather | اجباری |
+| `TELEGRAM_CHAT_ID` | عدد Chat ID | اجباری |
 
-**مرحله ۱.۴** — چند ثانیه صبر کن. الان توی اکانت خودتی و آدرس URL صفحه شده:
-```
-https://github.com/نام-اکانت-خودت/seo-job-bot
-```
+5. اینا **اختیاری** هستن (اگه بخوای):
 
-> ✅ Fork شد! یه کپی از پروژه توی اکانت خودت داری.
+| Name | Value | توضیح |
+|------|-------|-------|
+| `AI_PROVIDER` | `gemini` | فعال‌سازی Cover Letter هوشمند |
+| `AI_API_KEY` | کلید Gemini | از [aistudio.google.com](https://aistudio.google.com/apikey) بگیر (رایگان) |
+| `RAPIDAPI_KEY` | کلید RapidAPI | برای JSearch (لینکدین) — [rapidapi.com](https://rapidapi.com) |
+| `ADZUNA_APP_ID` | App ID | از [developer.adzuna.com](https://developer.adzuna.com) |
+| `ADZUNA_API_KEY` | API Key | همراه ADZUNA_APP_ID |
+| `CF_WORKER_URL` | آدرس Worker | اگه Cloudflare Worker راه‌اندازی کردی |
+| `CF_WORKER_SECRET` | رمز Worker | امنیت Worker |
+| `TELEGRAPH_TOKEN` | توکن Telegraph | جلوگیری از بن شدن (توضیح پایین) |
+| `GSHEET_CREDENTIALS` | JSON سرویس اکانت | برای Google Sheets |
+| `GSHEET_ID` | ID شیت | از URL شیت |
 
----
+### مرحله ۵: فعال‌سازی اجرای خودکار — ۱ دقیقه
 
-### 🟡 گام ۲ — گرفتن API Key از RapidAPI
+1. تو ریپازیتوری GitHub، برو به تب **Actions** (بالا)
+2. اگه پیام "I understand my workflows" دیدی، تأییدش کن
+3. تمام! ربات **هر ۶ ساعت** خودکار اجرا میشه ✅
 
-**این کلید چیه؟**
-JSearch یه سرویسه که آگهی‌های شغلی رو از سراسر اینترنت جمع میکنه. برای استفاده از این سرویس، باید یه API Key داشته باشی — مثل یه رمز عبور اختصاصی که به ربات تو میگه "این آدم مجوز استفاده داره".
-
----
-
-**مرحله ۲.۱ — ساخت اکانت در RapidAPI**
-
-1. برو به سایت [rapidapi.com](https://rapidapi.com)
-2. روی **Sign Up** کلیک کن
-3. میتونی با **Google Account** یا **ایمیل** ثبت‌نام کنی
-4. اگه با ایمیل ثبت‌نام کردی، ایمیل تأییدیه رو چک کن
-
-> 💡 اگه از ایران هستی و سایت لود نمیشه، از VPN استفاده کن.
-
----
-
-**مرحله ۲.۲ — رفتن به صفحه JSearch**
-
-بعد از ورود به RapidAPI، مستقیم برو به این لینک:
-
-👉 [https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch](https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch)
-
----
-
-**مرحله ۲.۳ — Subscribe کردن به پلن رایگان**
-
-1. بالای صفحه، سمت راست، دکمه آبی‌رنگ **Subscribe to Test** رو میبینی — روش کلیک کن
-
-```
-📍 محل دکمه: نوار بالای صفحه، کنار عنوان JSearch
-```
-
-2. صفحه‌ای باز میشه که پلن‌های مختلف رو نشون میده. پلن **BASIC** رو انتخاب کن:
-
-```
-📦 پلن BASIC (رایگان) — جزئیات:
-├── 💰 قیمت: $0 در ماه — کاملاً رایگان
-├── 📊 ۲۰۰ ریکوئست در ماه
-├── ⚡ حداکثر ۵ ریکوئست در ثانیه
-├── 🔄 هر ماه ریست میشه (اول هر ماه دوباره ۲۰۰ تا داری)
-└── 💳 نیازی به کارت بانکی نیست
-```
-
-> 💡 با ۵ کوئری روزانه × ۳۰ روز = ۱۵۰ ریکوئست در ماه. کاملاً در محدوده رایگان.
-
-3. زیر پلن BASIC، روی دکمه **Subscribe** کلیک کن
-
-4. یه پنجره تأیید میاد — دوباره **Subscribe** بزن
+> 💡 برای اجرای دستی: Actions → "SEO Job Scraper" → "Run workflow" → "Run workflow"
 
 ---
 
-**مرحله ۲.۴ — پیدا کردن API Key**
+## 🧠 Cover Letter هوشمند (اختیاری)
 
-بعد از subscribe کردن، به صفحه JSearch برمیگردی.
+اگه `AI_PROVIDER` و `AI_API_KEY` رو ست کنی، زیر هر آگهی یه دکمه **✍️ Cover Letter** اضافه میشه که یه لینک Telegra.ph بازه با متن Cover Letter سفارشی.
 
-1. نگاه کن به **ستون سمت راست** صفحه — یه بخش با عنوان **Header Parameters** یا **Code Snippet** هست
-2. دنبال این خط بگرد:
+### ارائه‌دهنده‌های پشتیبانی‌شده
+
+| AI_PROVIDER | توضیح | مدل پیش‌فرض |
+|-------------|--------|-------------|
+| `gemini` | Google Gemini — رایگان | `gemini-2.0-flash` |
+| `tokenlb` | TokenLB — Claude, GPT و مدل‌های پریمیوم | `claude-sonnet-4` |
+| `openai` | OpenAI مستقیم | `gpt-4o-mini` |
+| `custom` | هر API سازگار با OpenAI | — |
+
+### گزینه ۱: Gemini (رایگان)
+1. برو به [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. لاگین با Google
+3. کلید رو کپی کن
+4. تو Secrets اضافه کن: `AI_API_KEY` = کلید، `AI_PROVIDER` = `gemini`
+
+### گزینه ۲: TokenLB (مدل‌های پریمیوم)
+با [TokenLB](https://tokenlb.net/sign-up?aff=yNLD) میتونی از Claude, GPT-4.1 و بقیه مدل‌های پریمیوم استفاده کنی.
+1. ثبت‌نام در [tokenlb.net](https://tokenlb.net/sign-up?aff=yNLD)
+2. کلید API بگیر
+3. Secrets:
+   - `AI_PROVIDER` = `tokenlb`
+   - `AI_API_KEY` = کلید TokenLB
+   - `AI_MODEL` = `claude-sonnet-4-6` (یا `gpt-5.5`, `claude-opus-4-7`, ...)
+
+### گزینه ۳: Custom (هر سرویس سازگار با OpenAI)
+اگه سرویس دیگه‌ای داری که با API استاندارد OpenAI سازگاره:
+- `AI_PROVIDER` = `custom`
+- `AI_BASE_URL` = آدرس API (مثلاً `https://api.example.com/v1`)
+- `AI_API_KEY` = کلید
+- `AI_MODEL` = نام مدل
+
+---
+
+## 📰 Telegraph Token (توصیه میشه)
+
+ربات برای نمایش Cover Letter از Telegra.ph استفاده می‌کنه. بدون `TELEGRAPH_TOKEN`، هر run یه اکانت جدید می‌سازه که باعث بن شدن IP میشه!
+
+**روش دریافت (فقط یکبار):**
+1. اولین بار ربات رو اجرا کن (بدون TELEGRAPH_TOKEN)
+2. تو لاگ Actions یه پیام مثل این می‌بینی:
    ```
-   X-RapidAPI-Key: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   Telegraph account created. Save this as TELEGRAPH_TOKEN: abc123xyz...
    ```
-3. اون رشته طولانی بعد از `X-RapidAPI-Key:` — این **API Key** توئه
-4. روش کلیک کن و **کپی** کن
-
-شکل API Key اینطوریه (این یه نمونه تستیه، مال خودت فرق داره):
-```
-47f9099b54ntiYYYYYYYYYYYYYYYYYYYYY
-```
-
-> ⚠️ **مهم:** این کلید رو مثل پسورد نگه دار. به کسی نشونش نده و توی کد مستقیم ننویسش — بعداً توی GitHub Secrets ذخیرش میکنیم.
+3. اون مقدار رو کپی کن و به عنوان Secret اضافه کن: `TELEGRAPH_TOKEN`
+4. از این به بعد ربات از همون اکانت استفاده می‌کنه ✅
 
 ---
 
-### 🟠 گام ۳ — ساخت ربات تلگرام
+## ☁️ Cloudflare Worker (اختیاری — منابع بیشتر)
 
-**ربات تلگرام چیه؟**
-توی تلگرام میشه اکانت‌های خودکار ساخت که بهشون "ربات" میگن. ربات میتونه پیام بفرسته، بگیره، و کارهای مختلف انجام بده. ربات ما فقط یه کار میکنه: هر روز صبح آگهی‌های شغلی رو برات میفرسته.
+Worker یه اسکریپت رایگانه که از Remote OK و We Work Remotely آگهی جمع می‌کنه.
 
----
+**راه‌اندازی (۱۰ دقیقه):**
 
-**مرحله ۳.۱ — ساخت ربات با BotFather**
+1. برو به [dash.cloudflare.com](https://dash.cloudflare.com) — ثبت‌نام رایگان
+2. منوی چپ: **Workers & Pages** → **Create**
+3. اسم بده: `seo-job-worker` → **Deploy**
+4. بعد Deploy، دکمه **Edit Code** رو بزن
+5. محتوای فایل `cf_worker.js` رو کپی-پیست کن
+6. بالا سمت راست: **Save and deploy**
+7. URL که بهت میده (مثلاً `https://seo-job-worker.YOUR-NAME.workers.dev`) رو کپی کن
+8. تو GitHub Secrets اضافه کن: `CF_WORKER_URL` = اون URL
 
-1. توی تلگرام، به [@BotFather](https://t.me/BotFather) برو (این یه ربات رسمی خود تلگرامه)
-2. دکمه **Start** رو بزن یا `/start` بفرست
-3. دستور زیر رو بفرست:
-   ```
-   /newbot
-   ```
-4. BotFather میپرسه: **What's the name of your bot?**
-   - یه اسم فارسی یا انگلیسی بده (این اسمیه که توی پروفایل ربات نشون داده میشه)
-   - مثلاً: `Job Alert Bot` یا `ربات آگهی شغلی`
-
-5. بعد میپرسه: **What's the username?**
-   - این username باید به `bot` ختم بشه
-   - مثلاً: `my_seo_job_alert_bot`
-   - اگه username قبلاً گرفته شده بود، یه اسم دیگه امتحان کن
-
-6. BotFather یه **توکن** بهت میده — شبیه این (این یه نمونه تستیه):
-   ```
-   8923345284:AAHp_M8RQn4zMqo8gcd9QjnovSc7gFq7UsV
-   ```
-   این توکن رو **کپی کن** و یه جای امن ذخیره کن ✅
-
-> ⚠️ **خیلی مهم:** این توکن مثل کلید ربانیه. هر کسی این توکن رو داشته باشه میتونه با ربات تو پیام بفرسته. هیچ‌وقت پابلیک نکنش.
+**امنیت Worker (توصیه میشه):**
+1. تو Cloudflare: Workers → سمت چپ **Settings** → **Variables**
+2. یه Environment Variable اضافه کن: `WORKER_SECRET` = یه رمز دلخواه
+3. تو GitHub Secrets: `CF_WORKER_SECRET` = همون رمز
 
 ---
 
-**مرحله ۳.۲ — پیدا کردن Chat ID خودت**
+## 📋 Google Sheets (اختیاری)
 
-ربات باید بدونه پیام‌ها رو برای **کی** بفرسته. این کار با "Chat ID" انجام میشه — یه عدد یکتا که مشخص میکنه تو کی هستی.
+برای ذخیره تاریخچه آگهی‌ها تو Google Sheets:
 
-1. توی تلگرام به [@userinfobot](https://t.me/userinfobot) برو
-2. دکمه **Start** رو بزن
-3. ربات بلافاصله یه عدد بهت میده — این **Chat ID** توئه
-   ```
-   مثلاً: 482647831
-   ```
-4. این عدد رو کپی کن ✅
-
----
-
-**مرحله ۳.۳ — فعال کردن ربات**
-
-این مرحله خیلی مهمه و اکثر افراد فراموش میکنن:
-
-1. توی تلگرام، روی Search کلیک کن و username ربات خودت رو سرچ کن
-2. وارد چت ربات بشو
-3. دکمه **Start** رو بزن یا `/start` بفرست
-
-> ❗ اگه این کار رو نکنی، ربات نمیتونه برات پیام بفرسته و خطا میگیری.
+1. برو به [console.cloud.google.com](https://console.cloud.google.com)
+2. یه پروژه بساز → APIs & Services → Enable: **Google Sheets API** + **Google Drive API**
+3. Credentials → Create → **Service Account** → کلید JSON دانلود کن
+4. یه Google Sheet بساز و Email سرویس اکانت رو Editor اضافه کن
+5. تو Secrets:
+   - `GSHEET_CREDENTIALS` = محتوای فایل JSON
+   - `GSHEET_ID` = بخش بعد از `/d/` در URL شیت
 
 ---
 
-### 🔵 گام ۴ — ذخیره کردن کلیدها در GitHub Secrets
-
-**Secrets چیه و چرا لازمه؟**
-اگه API Key و توکن تلگرام رو مستقیم توی کد بنویسی، هر کسی که پروژه رو میبینه میتونه اون‌ها رو بخونه. **GitHub Secrets** یه گاوصندوق رمزنگاری‌شده است که کلیدهای محرمانه‌ات رو توش نگه میداره. حتی خودت هم بعد از ذخیره کردن نمیتونی ببینیشون — فقط GitHub Actions موقع اجرا بهشون دسترسی داره.
-
----
-
-**مراحل اضافه کردن Secrets:**
-
-**مرحله ۴.۱** — برو به ریپوی Fork شده‌ات در GitHub (همون صفحه‌ای که Fork کردی)
-
-**مرحله ۴.۲** — روی تب **Settings** کلیک کن:
-```
-📍 Settings آخرین تب در نوار بالاست — بعد از Insights
-```
-
-> ⚠️ اگه Settings رو نمیبینی، یعنی داری ریپوی اصلی رو میبینی نه Fork خودت. آدرس URL رو چک کن — باید اسم خودت توش باشه.
-
-**مرحله ۴.۳** — از منوی **سمت چپ** صفحه Settings، برو به:
-```
-Security
-└── Secrets and variables
-    └── Actions   ← اینجا رو کلیک کن
-```
-
-**مرحله ۴.۴** — صفحه‌ای باز میشه با دو تب: `Secrets` و `Variables`. مطمئن شو روی تب **Secrets** هستی.
-
-**مرحله ۴.۵** — روی دکمه سبز **New repository secret** کلیک کن
-
----
-
-حالا باید **۳ تا Secret** یکی یکی اضافه کنی:
-
----
-
-**🔑 Secret اول — کلید RapidAPI:**
+## 📁 ساختار فایل‌ها
 
 ```
-Name:   RAPIDAPI_KEY
-Secret: [کلید API که از صفحه JSearch کپی کردی]
-```
-
-روی **Add secret** کلیک کن ✅
-
----
-
-**🔑 Secret دوم — توکن ربات تلگرام:**
-
-```
-Name:   TELEGRAM_BOT_TOKEN
-Secret: [توکنی که BotFather داد — مثلاً 8923345284:AAHp_M8...]
-```
-
-روی **Add secret** کلیک کن ✅
-
----
-
-**🔑 Secret سوم — Chat ID تلگرام:**
-
-```
-Name:   TELEGRAM_CHAT_ID
-Secret: [عدد Chat ID که از userinfobot گرفتی — مثلاً 482647831]
-```
-
-روی **Add secret** کلیک کن ✅
-
----
-
-بعد از اضافه کردن هر سه، باید اینا رو ببینی:
-
-```
-Repository secrets (3)
-✅ RAPIDAPI_KEY          Updated just now
-✅ TELEGRAM_BOT_TOKEN    Updated just now
-✅ TELEGRAM_CHAT_ID      Updated just now
-```
-
-> 💡 اگه اسم Secret رو اشتباه نوشتی (مثلاً RAPIDAPI_KEYS به جای RAPIDAPI_KEY)، ربات کار نمیکنه. اسم‌ها **حساس به حروف بزرگ و کوچک** هستن.
-
----
-
-### 🟣 گام ۵ — تست اولیه (اجرای دستی)
-
-**GitHub Actions چیه؟**
-GitHub Actions یه سرویس رایگانه که کد رو **طبق زمانبندی** یا **دستی** اجرا میکنه. ربات ما از این سرویس استفاده میکنه تا هر روز صبح اتوماتیک اجرا بشه — بدون اینکه تو هیچ کاری بکنی.
-
----
-
-**مرحله ۵.۱** — در ریپوی خودت روی تب **Actions** کلیک کن
-
-**مرحله ۵.۲** — احتمالاً یه پیام زرد رنگ میبینی:
-```
-⚠️ Workflows aren't being run on this forked repository
-```
-روی دکمه **I understand my workflows, enable them** کلیک کن.
-
-> این یه اقدام امنیتی GitHub است که از اجرای ناخواسته کد جلوگیری میکنه. چون پروژه رو خودت Fork کردی و میدونی چیه، کلیک کن.
-
-**مرحله ۵.۳** — از منوی **سمت چپ**، روی **Job Search Bot 🤖** کلیک کن
-
-**مرحله ۵.۴** — سمت راست، دکمه **Run workflow** رو بزن
-
-**مرحله ۵.۵** — یه Dropdown باز میشه:
-```
-Use workflow from: Branch: main ✓
-[Run workflow]  ← این دکمه رو کلیک کن
-```
-
-**مرحله ۵.۶** — چند ثانیه صبر کن، بعد صفحه رو Refresh کن (F5)
-
-**مرحله ۵.۷** — باید یه ردیف جدید ببینی. اگه:
-- 🟡 **دایره زرد:** هنوز داره اجرا میشه — صبر کن
-- ✅ **تیک سبز:** موفق بود! برو تلگرام رو چک کن
-- ❌ **ضربدر قرمز:** خطا داره — بخش عیب‌یابی رو بخون
-
-**مرحله ۵.۸** — **تلگرام رو چک کن** — باید پیام‌هایی از ربات خودت دریافت کرده باشی! 🎉
-
----
-
-## ⚙️ شخصی‌سازی
-
-### تغییر کلمات جستجو
-
-فایل `bot.py` رو در GitHub باز کن و این بخش رو پیدا کن:
-
-```python
-SEARCH_QUERIES = [
-    "Junior SEO remote",
-    "Technical SEO remote",
-    "SEO Content Editor remote",
-    "SEO Python remote",
-    "WordPress SEO Specialist remote",
-]
-```
-
-**چطور ویرایش کنی؟**
-
-1. روی فایل `bot.py` کلیک کن
-2. دکمه ✏️ (Edit this file — شکل مداد) رو در بالا راست پیدا کن و بزن
-3. متن رو تغییر بده
-4. پایین صفحه، روی **Commit changes** کلیک کن
-5. دوباره **Commit changes** رو تأیید کن
-
-**نمونه کوئری‌های مختلف:**
-
-```python
-# برای دیجیتال مارکتینگ
-"digital marketing specialist remote"
-"social media manager remote"
-"content marketing remote"
-
-# برای طراحی
-"UI UX designer remote"
-"graphic designer remote"
-
-# برای توسعه
-"python developer remote"
-"react developer remote"
-"frontend developer remote"
-
-# برای داده
-"data analyst remote"
-"data scientist remote"
-
-# جستجو در پلتفرم خاص
-"SEO specialist remote via linkedin"
-"marketing manager remote via indeed"
-```
-
-> 💡 **نکته محاسباتی:** هر کوئری = ۱ ریکوئست در روز. با ۵ کوئری × ۳۰ روز = ۱۵۰ ریکوئست در ماه — در محدوده پلن رایگان (۲۰۰ تا).
-
----
-
-### تغییر فیلتر Blacklist
-
-این بخش رو در `bot.py` پیدا کن:
-
-```python
-BLACKLIST_KEYWORDS = [
-    "us residents only",
-    "must reside in us",
-    "senior",
-    "director",
-    "agency",
-    "full stack",
-]
-```
-
-هر کلمه‌ای که اضافه کنی، آگهی‌هایی که اون کلمه رو **در هر جایی از متنشون** دارن، فیلتر و حذف میشن.
-
-**نمونه‌های بیشتر برای فیلتر:**
-
-```python
-# موقعیت‌های ارشد
-"manager",
-"lead",
-"head of",
-"vp of",
-"vice president",
-
-# محدودیت جغرافیایی
-"uk only",
-"europe only", 
-"australia only",
-"must be based in",
-
-# نوع قرارداد نامناسب
-"unpaid",
-"internship",
-"volunteer",
-"commission only",
+seo-job-scraper/
+├── bot.py                    ← کد اصلی ربات
+├── requirements.txt          ← پکیج‌های پایتون
+├── cf_worker.js              ← اسکریپت Cloudflare Worker
+├── .github/workflows/run.yml ← زمان‌بندی GitHub Actions
+├── .env.example              ← نمونه متغیرهای محیطی
+├── setup_wizard.html         ← ابزار کمکی تنظیمات
+└── seen_jobs.txt             ← کش آگهی‌ها (خودکار ساخته میشه)
 ```
 
 ---
 
-### تغییر زمان اجرا
+## ❓ مشکلات رایج
 
-ربات الان هر روز **ساعت ۷ صبح به وقت ایران** اجرا میشه.
-
-برای تغییر، فایل `.github/workflows/run.yml` رو باز کن و این خط رو پیدا کن:
-
-```yaml
-- cron: "30 3 * * *"
-```
-
-**جدول زمان‌ها (توجه: GitHub از ساعت UTC استفاده میکنه — ایران UTC+3:30 هست):**
-
-| ساعت ایران | مقدار cron |
-|---|---|
-| ۶ صبح | `"30 2 * * *"` |
-| ۷ صبح (پیش‌فرض) | `"30 3 * * *"` |
-| ۸ صبح | `"30 4 * * *"` |
-| ۹ صبح | `"30 5 * * *"` |
-| ۱۲ ظهر | `"30 8 * * *"` |
-
-**اگه میخوای ۲ بار در روز اجرا بشه (مثلاً ۷ صبح و ۵ عصر):**
-
-```yaml
-schedule:
-  - cron: "30 3 * * *"
-  - cron: "30 13 * * *"
-```
+| مشکل | راه‌حل |
+|------|--------|
+| ربات پیام نمیده | Actions → آخرین run رو باز کن → لاگ رو بخون |
+| "TELEGRAM_BOT_TOKEN not set" | Secret رو چک کن — اسمش دقیقاً `TELEGRAM_BOT_TOKEN` باشه |
+| آگهی کم پیدا میشه | `MIN_FIT_SCORE` رو تو bot.py کمتر کن (مثلاً ۲۵) |
+| Cover Letter نداره | `AI_PROVIDER` و `AI_API_KEY` ست شدن؟ |
+| Worker کار نمی‌کنه | URL رو تو مرورگر تست کن: `YOUR_URL/jobs` |
 
 ---
 
-## 📊 اضافه کردن Google Sheets (اختیاری)
+## 📄 لایسنس
 
-اگه میخوای آگهی‌ها علاوه بر تلگرام توی یه فایل آنلاین مثل اکسل هم ذخیره بشن، فایل `SETUP_GSHEET.md` رو بخون.
+MIT — هر کاری می‌خوای باهاش بکن ✌️
 
----
 
-## 🔧 عیب‌یابی — وقتی چیزی کار نمیکنه
 
-### اولین قدم: دیدن لاگ‌ها
-
-وقتی ربات خطا میده، اول باید لاگ‌ها رو ببینی:
-
-1. برو به تب **Actions** در GitHub
-2. روی آخرین Run کلیک کن (ردیف اول)
-3. روی **run-bot** کلیک کن
-4. لاگ‌ها رو بخون — معمولاً خطا با رنگ قرمز مشخصه و پیام واضحی داره
-
----
-
-### ❓ مشکلات رایج و راه‌حل‌شون
-
-**ربات پیامی نفرستاد:**
-- چک کن که به ربات `/start` فرستادی (گام ۳.۳)
-- TELEGRAM_CHAT_ID رو دوباره از [@userinfobot](https://t.me/userinfobot) بگیر و مطمئن شو درسته
-
-**خطای `401 Unauthorized` برای تلگرام:**
-- توکن ربات رو اشتباه وارد کردی
-- Secret رو حذف و دوباره اضافه کن — مطمئن شو کل توکن رو کپی کردی (شامل اون اعداد اول و دونقطه)
-
-**خطای `RAPIDAPI_KEY` یا `403`:**
-- API Key رو اشتباه وارد کردی یا هیچ فاصله یا کاراکتر اضافه‌ای نباشه
-- برو به RapidAPI و چک کن هنوز به پلن subscribe هستی
-
-**آگهی‌های تکراری میاد:**
-- این طبیعیه در اجرای اول. فایل `seen_jobs.txt` بعد از اولین اجرا ساخته میشه و از اجرای دوم به بعد تکراری نمیاد
-
-**ربات ران میشه ولی هیچ آگهی‌ای پیدا نمیکنه:**
-- کوئری‌های جستجوت خیلی محدود هستن — کمتر فیلتر بزن
-- Blacklist رو چک کن — شاید کلمه‌ای اضافه کردی که همه آگهی‌ها رو فیلتر میکنه
-
-**Workflow اجرا نمیشه (هیچ Run جدیدی نمیاد):**
-- مطمئن شو Workflows رو enable کردی (گام ۵.۲)
-- فایل `.github/workflows/run.yml` رو چک کن که دست نخورده باشه
-
----
-
-## ❓ سوالات متداول
-
-**آیا واقعاً رایگانه؟**
-بله. GitHub Actions برای ریپوهای عمومی کاملاً رایگانه. RapidAPI هم ۲۰۰ ریکوئست رایگان در ماه میده. تلگرام هم که رایگانه.
-
-**آیا وقتی کامپیوترم خاموشه هم کار میکنه؟**
-بله! کد روی سرورهای GitHub اجرا میشه، نه کامپیوتر تو. حتی اگه گوشیت خاموش باشه هم ربات کار میکنه.
-
-**چند نفر میتونن از یه ربات استفاده کنن؟**
-میتونی TELEGRAM_CHAT_ID یه گروه تلگرام رو وارد کنی — اینطوری همه اعضای گروه آگهی‌ها رو میگیرن. Chat ID گروه رو از [@userinfobot](https://t.me/userinfobot) بگیر.
-
-**اگه اشتباهی کردم چیکار کنم؟**
-Secret رو میتونی هر وقت خواستی Update کنی — کافیه دوباره روی اسم Secret کلیک کنی و مقدار جدید بدی.
-
----
-
-## 🙏 Credits
-
-این پروژه از سرویس‌های رایگان زیر استفاده میکنه:
-
-- جستجوی آگهی‌های شغلی: [JSearch API](https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch) توسط OpenWeb Ninja
-- اجرای خودکار: [GitHub Actions](https://github.com/features/actions)
-- ارسال پیام: [Telegram Bot API](https://core.telegram.org/bots/api)
-
-</div>
