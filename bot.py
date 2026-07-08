@@ -411,7 +411,7 @@ def _should_run_p3() -> bool:
 def search_jsearch(query: str) -> list:
     if not RAPIDAPI_KEY:
         return []
-    url = "https://jsearch.p.rapidapi.com/search"
+    url = "https://jsearch.p.rapidapi.com/search-v2"
     headers = {"x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": "jsearch.p.rapidapi.com"}
     params = {"query": query, "num_pages": "1", "date_posted": "week", "work_from_home": "true"}
 
@@ -429,7 +429,8 @@ def search_jsearch(query: str) -> list:
             data = resp.json()
             if data.get("status") != "OK":
                 return []
-            return [_normalize_jsearch(j) for j in data.get("data", [])]
+            jobs = data.get("data", {}).get("jobs", [])
+            return [_normalize_jsearch(j) for j in jobs]
         except requests.exceptions.Timeout:
             log.warning(f"JSearch timeout {attempt}/3")
         except Exception as e:
